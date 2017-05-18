@@ -134,7 +134,7 @@ namespace WebApi.Controllers
         
         [ActionName("Test")]
         [HttpGet]
-        public async Task< IHttpActionResult> Test()
+        public IHttpActionResult Test()
         {
             string respuesta = "Hola Mundo ";
             return Ok(respuesta);

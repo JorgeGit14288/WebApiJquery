@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Lista de contactos con Jquery</h2>
+<div class=" row">
+    <div class="col-md-12">
+        <table class=" table" id="tblPersonas">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombres</th>
+                    <th>direccion</th>
+                    <th>Nacimiento</th>
+                    <th>telefono</th>
+                    <th>email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="table1">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="result">
+
+</div>
+
+@section scripts
+{
+    <script >
+        $(document).ready(function ()
+        {
+             //Test();
+             getListar();
+        })
+        //esta funcion llama al metodo test del servidor que retorna un holamundo
+        // funciona a la perfeccion.
+        function Test() {
+          //  alert("Estoy en la funcion listar");
+            $.ajax({
+                // se manda la url para consumir los servicions
+                url: "http://localhost:16350/api/Personas/Test",
+                // el tipo de peticion, en este caso es get
+                type: 'get',
+                // el tipo de datos a recibir, en este caso Json
+                dataType: 'text',
+                // si la peticion es satisfactoria llamamos al metodo succes
+                success: function (response) {
+                    alert("succes");
+                },
+
+                // si la peticion causa error se desplegara lo siguiente
+                error: function (xhr, status) {
+                    alert('Disculpe, existió un problema');
+
+                    
+                },
+                // código a ejecutar sin importar si la petición falló o no
+                complete: function (xhr, status) {
+                    alert('Petición realizada');
+                }
+            })            
+        }
+
+        function getListar() {
+            //  alert("Estoy en la funcion listar");
+            $.ajax({
+                // se manda la url para consumir los servicions
+                url: "http://localhost:16350/api/Personas/Listar",
+                // el tipo de peticion, en este caso es get
+                type: 'get',
+                // el tipo de datos a recibir, en este caso Json
+                dataType: 'json',
+                // si la peticion es satisfactoria llamamos al metodo succes
+                success: function (response) {
+                   // alert("succes");
+                    recuperarPersonas(response, response.status);
+                },
+                
+                // si la peticion causa error se desplegara lo siguiente
+                error: function (xhr, status) {
+                    alert('Disculpe, existió un problema');
+                },
+                // código a ejecutar sin importar si la petición falló o no
+                complete: function (xhr, status) {
+                    //alert('Petición realizada');
+                }
+            })
+        }
+        // recuperamos la informacion que nos ha enviado el servidor
+        function procesarRespuesta(ajaxResponse) {
+            // observa que aquí asumimos que el resultado es un objeto 
+            // serializado en JSON, razón por la cual tomamos este dato
+            // y lo procesamos para recuperar un objeto que podamos
+            // manejar fácilmente
+            if (typeof ajaxResponse == "string")
+                ajaxResponse = $.parseJSON(ajaxResponse);
+            return ajaxResponse;
+        }
+        // recupera la informacion de los alumnos inscritos a esta cédula
+        function recuperarPersonas(ajaxResponse, textStatus) {
+           // alert("llego a mi funcion " + ajaxResponse);
+            var personas = procesarRespuesta(ajaxResponse);
+            if (!personas) {
+                // no se encontraron registros :(
+                alert("no se encontro registros");
+                return;
+            }
+
+            // recupera la instancia de la tabla en donde colocaremos los 
+            // registros que recuperamos y elimina todos salvo el primero, 
+            // que es donde se encuentra el encabezado de la tabla
+            var $tabla = $('#tblPersonas');
+            $tabla.find("tr:gt(0)").remove();
+
+            // ahora, para cada registro que recuperamos
+            var persona;
+            for (var i in personas) {
+                //alert("entre al for");
+                persona = personas[i];
+                $tabla.append(
+                   // alert("Estoy en el applet");
+                    "<tr><td class='id'>" + persona.idPersona +
+                    "</td><td class='nombre'>" + persona.nombre +
+                    "</td><td class='direccion'>" + persona.direccion +
+                    "</td><td class='nacimiento'>" + persona.nacimiento +
+                    "</td><td class='telefono'>" + persona.telefono +
+                    "</td><td class='email'>" + persona.email +
+                    
+                    "</td></tr>");
+            }
+        }
+    </script>
+    }
