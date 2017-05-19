@@ -5,6 +5,23 @@
 }
 
 <h2>Lista de contactos con Jquery</h2>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="col-md-6">
+            <div class=" form-horizontal">
+                <form id="fBuscar">
+                    <label>Buscar Persona</label>
+                    <input type="number" name="idPersona" id="idPersona" required class="form-horizontal form-inline " />
+                    <input type="button" id="btnBuscar" value="Buscar" name="Buscar" class="btn- btn-success " />
+                    <input type="button" id="btnCancelar" value="Cancelar" name="Cancelar" class="btn btn-danger" />
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="button" id="btnCrear" name="btnCrear" value="Crear Nuevo" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
 <div class=" row">
     <div class="col-md-12">
         <table class=" table" id="tblPersonas">
@@ -35,7 +52,27 @@
         $(document).ready(function ()
         {
              //Test();
-             getListar();
+            getListar();
+
+           
+        })
+        //funcion para recargar la pagina cada vez que se presiona un boton
+        $('#btnCancelar').click(function () {
+            //alert("preciono cancelar");
+            location.reload();
+        })
+        $('#btnBuscar').click(function () {
+            var idPersona = $('#idPersona').val();
+            if (($.isEmptyObject(idPersona)) || ($.isNumeric(idPersona) == false))
+            {
+                alert("El dato a buscar no es valido, solo se aceptan numeros");
+            }
+            else
+            {
+               // alert("estoy buscando una persona por id " + idPersona);
+                BuscarPersona(idPersona);
+            }
+        
         })
         //esta funcion llama al metodo test del servidor que retorna un holamundo
         // funciona a la perfeccion.
@@ -64,6 +101,41 @@
                     alert('Petición realizada');
                 }
             })            
+        }
+        function BuscarPersona(id) {
+            //alert("me llego  a la funcion " + id);
+            //empezamos a realizar la funcion ajax para obtener los datos
+            $.ajax({
+                //ponemos la direccion url en el aprametro url
+                url: "http://localhost:16350/api/Personas/Buscar/" + id,
+                type: 'get',
+                dataType: 'json',
+                success: function (response) {
+                 //   alert("success " + response);
+                    MostrarPersona(response);
+                },
+                error: function (response) {
+                    alert("Sucedio un error en la peticion " + response.status);
+                },
+                complete: function (response) {
+                   // alert("se completo la busqueda");
+                }
+            });
+        }
+        function MostrarPersona(ajaxResponse) {
+            var tabla = $('#tblPersonas');
+            tabla.find("tr:gt(0)").remove();
+            var persona = ajaxResponse;
+            //alert("persona id " + persona.idPersona);
+            tabla.append("<tr>" +
+                "<td>" + persona.idPersona + "</td>" +
+                "<td>" + persona.nombre + "</td>" +
+                "<td>" + persona.direccion + "</td>" +
+                "<td>" + persona.nacimiento + "</td>" +
+                "<td>" + persona.telefono + "</td>" +
+                "<td>" + persona.email + "</td>" + 
+                "</tr>"
+            );
         }
 
         function getListar() {
@@ -130,7 +202,6 @@
                     "</td><td class='nacimiento'>" + persona.nacimiento +
                     "</td><td class='telefono'>" + persona.telefono +
                     "</td><td class='email'>" + persona.email +
-                    
                     "</td></tr>");
             }
         }
